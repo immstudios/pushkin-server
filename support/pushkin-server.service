@@ -1,0 +1,13 @@
+[Unit]
+Description=Pushkin server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/pushkin-server
+ExecStart=/opt/pushkin-server/pushserver.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

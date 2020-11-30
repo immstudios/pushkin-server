@@ -84,10 +84,20 @@ async def default(request):
 
     target_dir = os.path.split(target_path)[0]
     if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
+        try:
+            os.makedirs(target_dir)
+        except FileExistsError:
+            pass
 
-    async with aiofiles.open(target_path, 'wb') as f:
+    temp_path = target_path + ".tmp"
+
+    async with aiofiles.open(temp_path, 'wb') as f:
         await f.write(request.body)
+    try:
+        os.rename(temp_path, target_path)
+    except Exception:
+        log_traceback()
+        return response(500, "Unable to write the target file")
 
     metrics_data["uploaded_files"] += 1
     metrics_data["uploaded_bytes"] += len(request.body)
